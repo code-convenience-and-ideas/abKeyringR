@@ -1,0 +1,18 @@
+---
+email_format: "first_name.last_name@company.com"
+keyring_entries:
+  - name: secret_one
+    type: password
+    username: "{system_user}CustomEnding"
+    comment: Note, should match your username and password for the service x.
+    service: test
+  - name: secret_two
+    type: sshkey
+    username: "{system_email}"
+    comment: Note, you should have set up an SSHKEY for this service.
+    service: test
+  - name: secret_three
+    type: token
+    username: harcoded_user
+    comment: You should go the the service and process an appropriate access token.
+    service: test

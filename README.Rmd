@@ -13,31 +13,25 @@ knitr::opts_chunk$set(
 )
 ```
 
-# packTemplate
+# abKeyringR
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/code-convenience-and-ideas/packTemplate/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/code-convenience-and-ideas/packTemplate/actions/workflows/R-CMD-check.yaml)
-[![Codecov test coverage](https://codecov.io/gh/code-convenience-and-ideas/packTemplate/branch/main/graph/badge.svg)](https://app.codecov.io/gh/code-convenience-and-ideas/packTemplate?branch=main)
+[![R-CMD-check](https://github.com/code-convenience-and-ideas/abKeyringR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/code-convenience-and-ideas/abKeyringR/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/code-convenience-and-ideas/abKeyringR/branch/main/graph/badge.svg)](https://app.codecov.io/gh/code-convenience-and-ideas/abKeyringR?branch=main)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-The goal of packTemplate is to build up an example of how I like to build and maintain R packages.
+The goal of abKeyringR is to create a few simple tools which capture required keyring entries for a project and give some guidance to building them.
 
-The hope is to integrate the various parts I'd like for ideally having a modern Continuous Integration, Continuous Development (CI/CD) approach to R code.
-To that end, I importantly aim to cover:
-* Github actions checking the package build
-* Automatic testing checks for the code with test packages and coverage checking
-* Git pre-commit operations to enforce consistent styles and formatting on the code
-* A nice, modern logging approach to
-* Automatic documentation and site building with example of vignettes, new, readmes and a package website.
+This should save time and help interoperability across teams for analysis scripts which depend on "secrets".
 
 ## Installation
 
-You can install the development version of packTemplate like so:
+You can install the development version of abKeyringR like so:
 
 ``` r
 # You can install thhis package directly from github
-devtools::install_github("https://github.com/code-convenience-and-ideas/packTemplate.git")
+devtools::install_github("https://github.com/code-convenience-and-ideas/abKeyringR.git")
 ```
 
 ## Example
@@ -45,25 +39,8 @@ devtools::install_github("https://github.com/code-convenience-and-ideas/packTemp
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
-library(packTemplate)
+library(abKeyringR)
 
 ## basic example code
-packTemplate::hello()
-packTemplate::df_shape_log_message(cars)
+abKeyringR::hello()
 ```
-
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-```{r cars}
-summary(cars)
-```
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
-
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.

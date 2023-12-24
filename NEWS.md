@@ -1,4 +1,4 @@
-# packTemplate 0.0.1
+# abKeyringR 0.0.1
 
-* Initial CRAN submission.
+* Initial package renaming from package template
 * Created structure + supporting files for my default template.
