@@ -153,7 +153,7 @@ testthat::test_that("load_keyring_yaml works", {
       "secret_one" = list(
         "name" = "secret_one",
         "type" = "password",
-        "username" = paste0(Sys.info()[['user']], "CustomEnding"),
+        "username" = paste0(Sys.info()[["user"]], "CustomEnding"),
         "comment" = "Note, should match your username and password for the service x.",
         "service" = "test"
       ),
@@ -185,4 +185,22 @@ testthat::test_that("load_keyring_yaml works", {
 
   # Will raise error until implementing proper unit test
   testthat::expect_equal(processed_keyring_yaml, expected_yaml_output)
+})
+
+testthat::test_that("", {
+  yaml_data_example <- list("keyring_entries" = list(
+    list("name" = "test_one", my_row_data = 1),
+    list("name" = "test_two", my_row_data = 2),
+    list("name" = "test_three", my_row_data = 3)
+  ))
+  table_of_yaml_data <- keyring_yaml_to_df(yaml_data_example)
+
+  expected_table_output <- dplyr::tribble(
+    ~name, ~my_row_data,
+    "test_one", 1,
+    "test_two", 2,
+    "test_three", 3
+  )
+
+  testthat::expect_equal(table_of_yaml_data, expected_table_output)
 })

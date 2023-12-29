@@ -1,5 +1,7 @@
 #' @import stringr
 #' @import yaml
+#' @import tidyr
+#' @import dplyr
 NULL
 
 #' Loops over a list to get a vector of name entries
@@ -165,4 +167,25 @@ load_keyring_yaml <- function(path_to_yaml_file,
   )
 
   return(yaml_data_as_list)
+}
+
+#' Unnests dataset entries into a tibble of required secret entries
+#'
+#' @param yaml_data_as_list  yaml document loaded as a nested list
+#'
+#' @return tibble containing one row for each secret required
+#' @export
+#'
+#' @examples
+#' yaml_data_example <- list("keyring_entries" = list(
+#' list("name" = "test_one", my_row_data = 1),
+#' list("name" = "test_two", my_row_data = 2),
+#' list("name" = "test_three", my_row_data = 3)))
+#' table_of_yaml_data <- keyring_yaml_to_df(yaml_data_example)
+keyring_yaml_to_df <- function(yaml_data_as_list){
+    unnested_keyring_data <-
+        dplyr::tibble(keyring_entries = yaml_data_as_list$keyring_entries) |>
+        tidyr::unnest_wider(keyring_entries)
+
+    return(unnested_keyring_data)
 }

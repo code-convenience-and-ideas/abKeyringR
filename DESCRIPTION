@@ -16,7 +16,10 @@ BugReports:
 Imports:
     glue,
     keyring,
-    stringr
+    stringr,
+    tibble,
+    tidyr,
+    yaml
 Suggests:
     knitr (>= 1.42),
     lintr (>= 3.1.1),
