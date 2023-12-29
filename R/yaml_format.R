@@ -178,15 +178,16 @@ load_keyring_yaml <- function(path_to_yaml_file,
 #'
 #' @examples
 #' yaml_data_example <- list("keyring_entries" = list(
-#' list("name" = "test_one", my_row_data = 1),
-#' list("name" = "test_two", my_row_data = 2),
-#' list("name" = "test_three", my_row_data = 3)))
+#'   list("name" = "test_one", my_row_data = 1),
+#'   list("name" = "test_two", my_row_data = 2),
+#'   list("name" = "test_three", my_row_data = 3)
+#' ))
 #' table_of_yaml_data <- keyring_yaml_to_df(yaml_data_example)
-keyring_yaml_to_df <- function(yaml_data_as_list){
+keyring_yaml_to_df <- function(yaml_data_as_list) {
   keyring_entries <- yaml_data_as_list$keyring_entries
-    unnested_keyring_data <-
-        dplyr::tibble(keyring_entries) |>
-        tidyr::unnest_wider(keyring_entries)
+  unnested_keyring_data <-
+    dplyr::tibble(keyring_entries) |>
+    tidyr::unnest_wider(keyring_entries)
 
-    return(unnested_keyring_data)
+  return(unnested_keyring_data)
 }

@@ -154,7 +154,8 @@ testthat::test_that("load_keyring_yaml works", {
         "name" = "secret_one",
         "type" = "password",
         "username" = paste0(Sys.info()[["user"]], "CustomEnding"),
-        "comment" = "Note, should match your username and password for the service x.",
+        "comment" = "Note, should match your username
+        and password for the service x.",
         "service" = "test"
       ),
       "secret_two" = list(
@@ -168,7 +169,8 @@ testthat::test_that("load_keyring_yaml works", {
         "name" = "secret_three",
         "type" = "token",
         "username" = "harcoded_user",
-        "comment" = "You should go the the service and process an appropriate access token.",
+        "comment" = "You should go the the service and
+        process an appropriate access token.",
         "service" = "test"
       )
     )

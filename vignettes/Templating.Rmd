@@ -37,17 +37,17 @@ This simple example loads a yaml file, and check for any missing entries
 specified in that file.
 
 ```{r}
-
 # Load an example yaml kept with the package
 local_folder_yaml <- system.file("extdata", "example_keyring_entries.yaml",
-                                 package = "abKeyringR")
+  package = "abKeyringR"
+)
 default_email_parser <- function(x) {
-   "hello"
+  "hello"
 }
 
 loaded_keyring_entries <- abKeyringR::load_keyring_yaml(
   local_folder_yaml, default_email_parser
-  )
+)
 
 # Pull out the datasets from the yaml as a dataframe
 keyring_entry_df <- abKeyringR::keyring_yaml_to_df(loaded_keyring_entries)
@@ -56,6 +56,6 @@ keyring_entry_df <- abKeyringR::keyring_yaml_to_df(loaded_keyring_entries)
 resulting_missing_entries <- keyring_entry_df |>
   # Add a column for presence of entries first
   abKeyringR::check_table_entries_available() |>
-  # Filter to only missing entry and return + raise warning for missing keyrings
+  # Filter to only missing entry and return + raise warning for missing
   abKeyringR::raise_missing_entry_message()
 ```
