@@ -40,7 +40,25 @@ This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
 library(abKeyringR)
+# Load an example yaml kept with the package
+local_folder_yaml <- system.file("extdata", "example_keyring_entries.yaml",
+  package = "abKeyringR"
+)
+default_email_parser <- function(x) {
+  "hello"
+}
 
-## basic example code
-abKeyringR::hello()
+loaded_keyring_entries <- abKeyringR::load_keyring_yaml(
+  local_folder_yaml, default_email_parser
+)
+
+# Pull out the datasets from the yaml as a dataframe
+keyring_entry_df <- abKeyringR::keyring_yaml_to_df(loaded_keyring_entries)
+
+# Check whether the entries exist in the system and give a warning if not
+resulting_missing_entries <- keyring_entry_df |>
+  # Add a column for presence of entries first
+  abKeyringR::check_table_entries_available() |>
+  # Filter to only missing entry and return + raise warning for missing
+  abKeyringR::raise_missing_entry_message()
 ```

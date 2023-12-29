@@ -1,34 +1,31 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# packTemplate
+# abKeyringR
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/code-convenience-and-ideas/packTemplate/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/code-convenience-and-ideas/packTemplate/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/code-convenience-and-ideas/abKeyringR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/code-convenience-and-ideas/abKeyringR/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
-coverage](https://codecov.io/gh/code-convenience-and-ideas/packTemplate/branch/main/graph/badge.svg)](https://app.codecov.io/gh/code-convenience-and-ideas/packTemplate?branch=main)
+coverage](https://codecov.io/gh/code-convenience-and-ideas/abKeyringR/branch/main/graph/badge.svg)](https://app.codecov.io/gh/code-convenience-and-ideas/abKeyringR?branch=main)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-The goal of packTemplate is to build up an example of how I like to
-build and maintain R packages.
+The goal of abKeyringR is to create a few simple tools which capture
+required keyring entries for a project and give some guidance to
+building them.
 
-The hope is to integrate the various parts I’d like for ideally having a
-modern Continuous Integration, Continuous Development (CI/CD) approach
-to R code. To that end, I importantly aim to cover: \* Github actions
-checking the package build \* Automatic testing checks for the code with
-test packages and coverage checking \* Git pre-commit operations to
-enforce consistent styles and formatting on the code \* A nice, modern
-logging approach to \* Automatic documentation and site building with
-example of vignettes, new, readmes and a package website.
+This should save time and help interoperability across teams for
+analysis scripts which depend on “secrets”.
 
 ## Installation
 
-You can install the development version of packTemplate like so:
+You can install the development version of abKeyringR like so:
 
 ``` r
 # You can install thhis package directly from github
-devtools::install_github("https://github.com/code-convenience-and-ideas/packTemplate.git")
+devtools::install_github("https://github.com/code-convenience-and-ideas/abKeyringR.git")
 ```
 
 ## Example
@@ -36,33 +33,38 @@ devtools::install_github("https://github.com/code-convenience-and-ideas/packTemp
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(packTemplate)
+library(abKeyringR)
+# Load an example yaml kept with the package
+local_folder_yaml <- system.file("extdata", "example_keyring_entries.yaml",
+  package = "abKeyringR"
+)
+default_email_parser <- function(x) {
+  "hello"
+}
 
-## basic example code
-packTemplate::hello()
-#> [1] "Hello, world!"
+loaded_keyring_entries <- abKeyringR::load_keyring_yaml(
+  local_folder_yaml, default_email_parser
+)
+
+# Pull out the datasets from the yaml as a dataframe
+keyring_entry_df <- abKeyringR::keyring_yaml_to_df(loaded_keyring_entries)
+
+# Check whether the entries exist in the system and give a warning if not
+resulting_missing_entries <- keyring_entry_df |>
+  # Add a column for presence of entries first
+  abKeyringR::check_table_entries_available() |>
+  # Filter to only missing entry and return + raise warning for missing
+  abKeyringR::raise_missing_entry_message()
+#> Got an error trying to get keyring entry. Will return FALSE
+#> Got an error trying to get keyring entry. Will return FALSE
+#> Got an error trying to get keyring entry. Will return FALSE
+#> Warning in abKeyringR::raise_missing_entry_message(abKeyringR::check_table_entries_available(keyring_entry_df)): Entry secret_one not found. Please set it up appropriately.
+#> Service: test, implied username: AlexCustomEnding.
+#> Comment from docs: Note, should match your username and password for the service x.
+#> Warning in abKeyringR::raise_missing_entry_message(abKeyringR::check_table_entries_available(keyring_entry_df)): Entry secret_two not found. Please set it up appropriately.
+#> Service: test, implied username: hello@company.com.
+#> Comment from docs: Note, you should have set up an SSHKEY for this service.
+#> Warning in abKeyringR::raise_missing_entry_message(abKeyringR::check_table_entries_available(keyring_entry_df)): Entry secret_three not found. Please set it up appropriately.
+#> Service: test, implied username: harcoded_user.
+#> Comment from docs: You should go the the service and process an appropriate access token.
 ```
-
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
-
-``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
-```
-
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this.
-
-You can also embed plots, for example:
-
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
