@@ -1,4 +1,5 @@
-#' @import stats
+#' @import glue
+#' @importFrom stats complete.cases
 NULL
 
 #' Creates a log of dataframe shape, and entry missingness
@@ -11,8 +12,8 @@ NULL
 #' @examples
 #' df_shape_log_message(cars)
 df_shape_log_message <- function(data_to_log) {
-  row_missing_entries <- complete.cases(data_to_log)
-  column_missing_entries <- complete.cases(t(data_to_log))
+  row_missing_entries <- stats::complete.cases(data_to_log)
+  column_missing_entries <- stats::complete.cases(t(data_to_log))
   dataframe_shape_message <-
     glue::glue(
       "Dataframe has: {nrow(data_to_log)} rows, {ncol(data_to_log)} columns,

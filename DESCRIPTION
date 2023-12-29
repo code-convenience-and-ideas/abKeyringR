@@ -14,10 +14,11 @@ URL: https://github.com/code-convenience-and-ideas/abKeyringR,
 BugReports:
     https://github.com/code-convenience-and-ideas/abKeyringR/issues
 Imports:
+    dplyr,
     glue,
     keyring,
+    rlang,
     stringr,
-    tibble,
     tidyr,
     yaml
 Suggests:

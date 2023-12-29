@@ -31,7 +31,7 @@ convert_entry_to_uppercase <- function(entry_string) {
 #'
 #' @param email_format a string specifying the required email address format
 #'
-#' @return
+#' @return an inferred email prefix from the supplied format type
 #' @export
 #'
 #' @examples

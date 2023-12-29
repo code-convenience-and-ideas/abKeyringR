@@ -1,7 +1,8 @@
 #' @import stringr
 #' @import keyring
-#' @import dplyr
+#' @importFrom dplyr tibble mutate filter rowwise ungroup
 #' @import glue
+#' @import rlang
 NULL
 
 #' Checks whether a specified entry exists in the current system keyring
@@ -104,12 +105,27 @@ check_needed_entries_exist <- function(keyring_dataset){
 #' @export
 #'
 #' @examples
-#' keyring_block_list_one <- list("service" = "test", "username" = "hardcode")
-#' keyring_block_list_two <- list("service" = "trial", "username" = "example")
+#' \dontrun{
+#' keyring::key_set_with_value("database", "username", "my_user")
+#' keyring::key_set_with_value("database", "my_user", "my_pswd")
+#' keyring::key_set_with_value("database2", "username", "my_user")
+#' keyring::key_set_with_value("database2", "my_user", "my_pswd")
+#'
+#' keyring_block_list_one <- list("service" = "database",
+#'                                "username" = "my_user")
+#' keyring_block_list_two <- list("service" = "database2",
+#'                                "username" = "my_user")
 #' keyring_data_format <- list("email_format" = "",
 #' "keyring_entries" = list("secret_one" = keyring_block_list_one,
 #'                          "secret_two" = keyring_block_list_two))
 #' get_username_from_data(keyring_data_format, "secret_one")
+#'
+#' # clean up: remove temp keyring entry
+#' keyring::key_delete("database", "username")
+#' keyring::key_delete("database", "my_user")
+#' keyring::key_delete("database2", "username")
+#' keyring::key_delete("database2", "my_user")
+#' }
 get_username_from_data <- function(keyring_dataset, entry_name){
     current_block <- keyring_dataset$keyring_entries[[entry_name]]
     current_username <- get_username_from_block(current_block)
@@ -125,12 +141,27 @@ get_username_from_data <- function(keyring_dataset, entry_name){
 #' @export
 #'
 #' @examples
-#' keyring_block_list_one <- list("service" = "test", "username" = "hardcode")
-#' keyring_block_list_two <- list("service" = "trial", "username" = "example")
+#' \dontrun{
+#' keyring::key_set_with_value("database", "username", "my_user")
+#' keyring::key_set_with_value("database", "my_user", "my_pswd")
+#' keyring::key_set_with_value("database2", "username", "my_user")
+#' keyring::key_set_with_value("database2", "my_user", "my_pswd")
+#'
+#' keyring_block_list_one <- list("service" = "database",
+#'                                "username" = "my_user")
+#' keyring_block_list_two <- list("service" = "database2",
+#'                                "username" = "my_user")
 #' keyring_data_format <- list("email_format" = "",
 #' "keyring_entries" = list("secret_one" = keyring_block_list_one,
 #'                          "secret_two" = keyring_block_list_two))
 #' get_password_from_data(keyring_data_format, "secret_one")
+#'
+#' # clean up: remove temp keyring entry
+#' keyring::key_delete("database", "username")
+#' keyring::key_delete("database", "my_user")
+#' keyring::key_delete("database2", "username")
+#' keyring::key_delete("database2", "my_user")
+#' }
 get_password_from_data <- function(keyring_dataset, entry_name){
     current_block <- keyring_dataset$keyring_entries[[entry_name]]
     current_password <- get_password_from_block(current_block)
@@ -145,8 +176,18 @@ get_password_from_data <- function(keyring_dataset, entry_name){
 #' @export
 #'
 #' @examples
-#' keyring_block_list_one <- list("service" = "test", "username" = "hardcode")
+#' \dontrun{
+#' keyring::key_set_with_value("database", "username", "my_user")
+#' keyring::key_set_with_value("database", "my_user", "my_pswd")
+#'
+#' keyring_block_list_one <- list("service" = "database",
+#'                                "username" = "my_user")
 #' get_username_from_block(keyring_block_list_one)
+#'
+#' # clean up: remove temp keyring entry
+#' keyring::key_delete("database", "username")
+#' keyring::key_delete("database", "my_user")
+#' }
 get_username_from_block <- function(keyring_block){
     return(keyring::key_get(service = keyring_block$service,
                             username = "username"))
@@ -160,8 +201,19 @@ get_username_from_block <- function(keyring_block){
 #' @export
 #'
 #' @examples
-#' keyring_block_list_one <- list("service" = "test", "username" = "hardcode")
+#' \dontrun{
+#' # Add a temporary keyring entry for testing
+#' keyring::key_set_with_value("database", "username", "my_user")
+#' keyring::key_set_with_value("database", "my_user", "my_pswd")
+#'
+#' keyring_block_list_one <- list("service" = "database",
+#'                                "username" = "my_user")
 #' get_password_from_block(keyring_block_list_one)
+#'
+#' # clean up: remove temp keyring entry
+#' keyring::key_delete("database", "username")
+#' keyring::key_delete("database", "my_user")
+#' }
 get_password_from_block <- function(keyring_block){
     return(keyring::key_get(service = keyring_block$service,
                             username = keyring_block$username))
@@ -184,10 +236,21 @@ get_password_from_block <- function(keyring_block){
 #' )
 #' check_table_entries_available(example_table)
 check_table_entries_available <- function(keyring_table){
+  # Added to appease the R CMD Check syntax overlords
+  entry_exists <- NULL
+  service <- NULL
+  username <- NULL
+
+  entry_existence_var <- rlang::quo(entry_exists)
+  service_var <- rlang::quo(service)
+  username_var <- rlang::quo(username)
+
+  # Core logic of function
     adjusted_keyring_table <- keyring_table |>
         dplyr::rowwise() |>
         dplyr::mutate(
-            entry_exists = check_keyring_entry_exists(service, username)
+            entry_exists = check_keyring_entry_exists(!!service_var,
+                                                      !!username_var)
         ) |>
         dplyr::ungroup()
 
@@ -242,9 +305,13 @@ construct_guide_message <- function(keyring_table){
 #' )
 #' raise_missing_entry_message(example_table)
 raise_missing_entry_message <- function(keyring_table){
+  # Added to appease the R CMD Check syntax overlords
+  entry_exists <- NULL
+   entry_existence_var <- rlang::quo(entry_exists)
+
     # Add the informative message
     adjusted_keyring_table <- keyring_table |>
-        dplyr::filter(!entry_exists) |>
+        dplyr::filter(!(!!entry_existence_var)) |>
         construct_guide_message()
 
     # For each missing entry, raise a warning and use the entry comment to

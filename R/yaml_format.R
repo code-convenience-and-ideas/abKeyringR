@@ -1,7 +1,7 @@
 #' @import stringr
 #' @import yaml
-#' @import tidyr
-#' @import dplyr
+#' @importFrom tidyr unnest_wider
+#' @importFrom dplyr tibble
 NULL
 
 #' Loops over a list to get a vector of name entries
@@ -52,7 +52,7 @@ promote_keyring_entry_names <- function(yaml_data_as_list) {
 #' @param email_template a string specifying the required email address format
 #' @param email_processor function which can resolve email template
 #'
-#' @return
+#' @return infers and updates username and returns keyring entry with update
 #' @export
 #'
 #' @examples
@@ -183,8 +183,9 @@ load_keyring_yaml <- function(path_to_yaml_file,
 #' list("name" = "test_three", my_row_data = 3)))
 #' table_of_yaml_data <- keyring_yaml_to_df(yaml_data_example)
 keyring_yaml_to_df <- function(yaml_data_as_list){
+  keyring_entries <- yaml_data_as_list$keyring_entries
     unnested_keyring_data <-
-        dplyr::tibble(keyring_entries = yaml_data_as_list$keyring_entries) |>
+        dplyr::tibble(keyring_entries) |>
         tidyr::unnest_wider(keyring_entries)
 
     return(unnested_keyring_data)

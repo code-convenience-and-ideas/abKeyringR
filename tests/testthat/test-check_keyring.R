@@ -1,108 +1,190 @@
 testthat::test_that("check_keyring_entry_exists works", {
-  yaml_entry_block <- list(
-    "name" = "secret_three",
-    "type" = "token",
-    "username" = "harcoded_user",
-    "comment" = "You should go the the service and process an appropriate access token.",
-    "service" = "test"
+  # Add a temporary keyring entry for testing
+  keyring::key_set_with_value("database", "username", "password123")
+
+  # Check true and false scenario
+  testthat::expect_equal(
+    check_keyring_entry_exists('database', 'username'), TRUE
   )
 
+  testthat::expect_equal(
+    check_keyring_entry_exists('databasexytas', 'username'), FALSE
+  )
 
-
-  testthat::expect_equal(2 * 2, 4)
+  # Clean up: remove the temporary keyring entry
+  keyring::key_delete("database", "username")
 })
 
 testthat::test_that("check_secret_entry_exists works", {
-    yaml_entry_block <- list(
-        "name" = "secret_three",
-        "type" = "token",
-        "username" = "harcoded_user",
-        "comment" = "You should go the the service and process an appropriate access token.",
-        "service" = "test"
-    )
+  temp_username <- "my_user"
+  temp_password <- "my_pswd"
 
+  # Add a temporary keyring entry for testing
+  keyring::key_set_with_value("database", "username", temp_username)
+  keyring::key_set_with_value("database", temp_username, temp_password)
 
+  # Check value
+  keyring_block_list <- list("service" = "database", "username" = temp_username)
+  keyring_block_list_garbage <- list("service" = "asdwadsda", "username" = "qawdasd")
+  keyring_block_service_nonuser <- list("service" = "database", "username" = "qawdasd")
+  keyring_value_true <- check_secret_entry_exists(keyring_block_list)
+  keyring_value_false <- check_secret_entry_exists(keyring_block_list_garbage)
+  keyring_value_nonuser <- check_secret_entry_exists(keyring_block_service_nonuser)
 
-    testthat::expect_equal(2 * 2, 4)
+  testthat::expect_equal(
+    keyring_value_true, TRUE
+  )
+
+  testthat::expect_equal(
+    keyring_value_false, FALSE
+  )
+
+  testthat::expect_equal(
+    keyring_value_nonuser, FALSE
+  )
+
+  # clean up: remove temp keyring entry
+  keyring::key_delete("database", "username")
+  keyring::key_delete("database", temp_username)
+
 })
 
 testthat::test_that("check_needed_entries_exist works", {
-  input_yaml_blocks <- list(
-    "email_format" = "first_name.last_name@company.com",
-    "keyring_entries" = list(
-      "secret_one" = list(
-        "name" = "secret_one",
-        "type" = "password",
-        "username" = paste0(Sys.info()[["user"]], "CustomEnding"),
-        "comment" = "Note, should match your username and password for the service x.",
-        "service" = "test"
-      ),
-      "secret_two" = list(
-        "name" = "secret_two",
-        "type" = "sshkey",
-        "username" = "hello@company.com",
-        "comment" = "Note, you should have set up an SSHKEY for this service.",
-        "service" = "test"
-      ),
-      "secret_three" = list(
-        "name" = "secret_three",
-        "type" = "token",
-        "username" = "harcoded_user",
-        "comment" = "You should go the the service and process an appropriate access token.",
-        "service" = "test"
-      )
-    )
-  )
+  temp_username <- "my_user"
+  temp_password <- "my_pswd"
 
-  testthat::expect_equal(2 * 2, 4)
+  # Add a temporary keyring entry for testing
+  keyring::key_set_with_value("database", "username", temp_username)
+  keyring::key_set_with_value("database", temp_username, temp_password)
+
+
+  keyring_block_list <- list("service" = "database", "username" = temp_username)
+  keyring_block_list_garbage <- list("service" = "asdwadsda", "username" = "qawdasd")
+  keyring_block_service_nonuser <- list("service" = "database", "username" = "qawdasd")
+
+  keyring_data_format <- list("email_format" = "",
+                              "keyring_entries" =
+                                list("secret_one" = keyring_block_list,
+                                     "secret_two" = keyring_block_list_garbage,
+                                     "secret_three" = keyring_block_service_nonuser))
+
+  output_keyring_list <- check_needed_entries_exist(keyring_data_format)
+
+  expected_presence_list <- list("secret_one" = TRUE,
+                                 "secret_two" = FALSE,
+                                 "secret_three" = FALSE)
+
+  testthat::expect_equal(output_keyring_list,
+                         expected_presence_list)
+
+  # clean up: remove temp keyring entry
+  keyring::key_delete("database", "username")
+  keyring::key_delete("database", temp_username)
 })
 
-testthat::test_that("get_username_from_data works", {
-  yaml_entry_block <- list(
-    "name" = "secret_three",
-    "type" = "token",
-    "username" = "harcoded_user",
-    "comment" = "You should go the the service and process an appropriate access token.",
-    "service" = "test"
-  )
-
-  testthat::expect_equal(2 * 2, 4)
-})
-
-testthat::test_that("get_password_from_data works", {
-    yaml_entry_block <- list(
-        "name" = "secret_three",
-        "type" = "token",
-        "username" = "harcoded_user",
-        "comment" = "You should go the the service and process an appropriate access token.",
-        "service" = "test"
-    )
-
-    testthat::expect_equal(2 * 2, 4)
-})
 
 testthat::test_that("get_username_from_block works", {
-    yaml_entry_block <- list(
-        "name" = "secret_three",
-        "type" = "token",
-        "username" = "harcoded_user",
-        "comment" = "You should go the the service and process an appropriate access token.",
-        "service" = "test"
-    )
+  temp_username <- "my_user"
+  temp_password <- "my_pswd"
 
-    testthat::expect_equal(2 * 2, 4)
+  # Add a temporary keyring entry for testing
+  keyring::key_set_with_value("database", "username", temp_username)
+  keyring::key_set_with_value("database", temp_username, temp_password)
+
+
+  keyring_block_list_one <- list("service" = "database",
+                                 "username" = temp_username)
+
+  username_from_keyring <- get_username_from_block(keyring_block_list_one)
+
+  testthat::expect_equal(username_from_keyring, temp_username)
+
+  # clean up: remove temp keyring entry
+  keyring::key_delete("database", "username")
+  keyring::key_delete("database", temp_username)
 })
 
 testthat::test_that("get_password_from_block works", {
-    yaml_entry_block <- list(
-        "name" = "secret_three",
-        "type" = "token",
-        "username" = "harcoded_user",
-        "comment" = "You should go the the service and process an appropriate access token.",
-        "service" = "test"
-    )
+  temp_username <- "my_user"
+  temp_password <- "my_pswd"
 
-    testthat::expect_equal(2 * 2, 4)
+  # Add a temporary keyring entry for testing
+  keyring::key_set_with_value("database", "username", temp_username)
+  keyring::key_set_with_value("database", temp_username, temp_password)
+
+
+  keyring_block_list_one <- list("service" = "database",
+                                 "username" = temp_username)
+
+  password_from_keyring <- get_password_from_block(keyring_block_list_one)
+
+  testthat::expect_equal(password_from_keyring, temp_password)
+
+  # clean up: remove temp keyring entry
+  keyring::key_delete("database", "username")
+  keyring::key_delete("database", temp_username)
+})
+
+
+testthat::test_that("get_username_from_data works", {
+  temp_username <- "my_user"
+  temp_password <- "my_pswd"
+
+  # Add a temporary keyring entry for testing
+  keyring::key_set_with_value("database", "username", temp_username)
+  keyring::key_set_with_value("database", temp_username, temp_password)
+
+
+  keyring_block_list <- list("service" = "database", "username" = temp_username)
+  keyring_block_list_garbage <- list("service" = "asdwadsda", "username" = "qawdasd")
+  keyring_block_service_nonuser <- list("service" = "database", "username" = "qawdasd")
+
+  keyring_data_format <- list(
+    "email_format" = "",
+    "keyring_entries" =
+      list("secret_one" = keyring_block_list,
+           "secret_two" = keyring_block_list_garbage,
+           "secret_three" = keyring_block_service_nonuser))
+
+
+  username_from_keyring <- get_username_from_data(keyring_data_format,
+                                                  "secret_one")
+
+  testthat::expect_equal(username_from_keyring, temp_username)
+
+  # clean up: remove temp keyring entry
+  keyring::key_delete("database", "username")
+  keyring::key_delete("database", temp_username)
+})
+
+testthat::test_that("get_password_from_data works", {
+  temp_username <- "my_user"
+  temp_password <- "my_pswd"
+
+  # Add a temporary keyring entry for testing
+  keyring::key_set_with_value("database", "username", temp_username)
+  keyring::key_set_with_value("database", temp_username, temp_password)
+
+
+  keyring_block_list <- list("service" = "database", "username" = temp_username)
+  keyring_block_list_garbage <- list("service" = "asdwadsda", "username" = "qawdasd")
+  keyring_block_service_nonuser <- list("service" = "database", "username" = "qawdasd")
+
+  keyring_data_format <- list(
+    "email_format" = "",
+    "keyring_entries" =
+      list("secret_one" = keyring_block_list,
+           "secret_two" = keyring_block_list_garbage,
+           "secret_three" = keyring_block_service_nonuser))
+
+  password_from_keyring <- get_password_from_data(keyring_data_format,
+                                                  "secret_one")
+
+  testthat::expect_equal(password_from_keyring, temp_password)
+
+  # clean up: remove temp keyring entry
+  keyring::key_delete("database", "username")
+  keyring::key_delete("database", temp_username)
 })
 
 
@@ -162,8 +244,6 @@ testthat::test_that("raise_missing_entry_message works", {
     Service: {example_table$service}, implied username: {example_table$username}.
     Comment from docs: {example_table$comment}"
   })
-
-
 
   expected_table <- example_table
   expected_table$guide_message <- expected_guide_messages
